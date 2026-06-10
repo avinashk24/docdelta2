@@ -1,0 +1,10 @@
+pdfplumber
+pymupdf
+langchain
+langchain-community
+sentence-transformers
+ollama
+python-dotenv
+jinja2
+tqdm
+numpy
