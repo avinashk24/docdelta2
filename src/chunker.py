@@ -1,28 +1,34 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 class DocumentChunker:
-    def __init__(self, chunk_size=1000, overlap=200):
+    def __init__(self, chunk_size=800, overlap=150):
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=overlap,
-            separators=["\n\n", "\n", ".", " "]
+            separators=["\n\n", "\n", "; ", ", ", " "]
         )
 
     def chunk_sections(self, sections: dict) -> list:
-        """
-        Chunk each section independently to preserve context.
-        Returns list of dicts with section + chunk content.
-        """
         chunks = []
-        for section_title, content in sections.items():
-            if not content.strip():
+        for section_path, content in sections.items():
+            if not content or len(content.strip()) < 20:
                 continue
 
-            sub_chunks = self.splitter.split_text(content)
-            for i, chunk in enumerate(sub_chunks):
+            if len(content) <= self.splitter._chunk_size:
+                # Short enough — keep as single chunk
                 chunks.append({
-                    "section": section_title,
-                    "chunk_index": i,
-                    "content": chunk.strip()
+                    "section": section_path,
+                    "chunk_index": 0,
+                    "content": content.strip()
                 })
+            else:
+                # Split long content
+                sub_chunks = self.splitter.split_text(content)
+                for i, chunk in enumerate(sub_chunks):
+                    if chunk.strip():
+                        chunks.append({
+                            "section": section_path,
+                            "chunk_index": i,
+                            "content": chunk.strip()
+                        })
         return chunks

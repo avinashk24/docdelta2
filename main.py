@@ -28,6 +28,17 @@ def compare_documents(pdf_v1: str, pdf_v2: str, output_format: str = "html"):
 
     print("⚠️  Assessing risks...")
     analyzer = RiskAnalyzer()
+    # After diff is computed, before risk analysis
+    total_changes = (len(diff["additions"]) + 
+                 len(diff["deletions"]) + 
+                 len(diff["updates"]))
+
+    print(f"\n   Total changes found: {total_changes}")
+
+    if total_changes > 1000:
+        print(f"   ⚠️  Large diff detected — "
+          f"rule-based analysis will handle bulk, "
+          f"LLM reserved for top critical changes only")
     risks = analyzer.analyze(diff)
 
     report = {
